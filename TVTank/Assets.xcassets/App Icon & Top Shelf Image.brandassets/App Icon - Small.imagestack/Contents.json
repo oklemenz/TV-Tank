@@ -1,0 +1,23 @@
+{
+  "layers" : [
+    {
+      "filename" : "icon_small_layer5_1.imagestacklayer"
+    },
+    {
+      "filename" : "icon_small_layer5_2.imagestacklayer"
+    },
+    {
+      "filename" : "icon_small_layer5_3.imagestacklayer"
+    },
+    {
+      "filename" : "icon_small_layer5_4.imagestacklayer"
+    },
+    {
+      "filename" : "icon_small_layer5_5.imagestacklayer"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}

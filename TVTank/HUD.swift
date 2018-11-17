@@ -37,7 +37,7 @@ class HUD : SKScene {
         if setupComplete {
             return
         }
-        bar = self.childNode(withName: "bar") as! SKShapeNode
+        bar = self.childNode(withName: "bar") as? SKShapeNode
         bar.enumerateChildNodes(withName: "box") {
             box, stop in
             box.alpha = 0.5
@@ -50,8 +50,8 @@ class HUD : SKScene {
             self.spots.append(spot as! SKSpriteNode)
         }
         spots.sort(by: { $0.position.x < $1.position.x })
-        bullet = bar.childNode(withName: "bullet") as! SKSpriteNode
-        missile = bar.childNode(withName: "missile") as! SKSpriteNode
+        bullet = bar.childNode(withName: "bullet") as? SKSpriteNode
+        missile = bar.childNode(withName: "missile") as? SKSpriteNode
         missile.isHidden = true
         
         setupComplete = true

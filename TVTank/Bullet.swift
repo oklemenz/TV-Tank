@@ -45,7 +45,7 @@ class Bullet: SKSpriteNode {
         physicsBody!.collisionBitMask = CollisionType.scene.rawValue | CollisionType.tank.rawValue |
             CollisionType.obstacle.rawValue | CollisionType.box.rawValue
         
-        bulletSmokeEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Smoke", ofType: "sks")!) as! SKEmitterNode
+        bulletSmokeEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Smoke", ofType: "sks")!) as? SKEmitterNode
         bulletSmokeEmitter.position = CGPoint(x:0, y:0)
         bulletSmokeEmitter.name = "bulletSmokeEmitter"
         bulletSmokeEmitter.particleZPosition = TANK_BULLET_ZPOS

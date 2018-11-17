@@ -46,7 +46,7 @@ class Missile: SKSpriteNode {
         physicsBody!.collisionBitMask = CollisionType.scene.rawValue | CollisionType.tank.rawValue |
             CollisionType.box.rawValue
         
-        missileSmokeEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Smoke", ofType: "sks")!) as! SKEmitterNode
+        missileSmokeEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Smoke", ofType: "sks")!) as? SKEmitterNode
         missileSmokeEmitter.position = CGPoint(x:0, y:0)
         missileSmokeEmitter.name = "missileSmokeEmitter"
         missileSmokeEmitter.particleZPosition = TANK_MISSILE_ZPOS
@@ -54,7 +54,7 @@ class Missile: SKSpriteNode {
         missileSmokeEmitter.particleBirthRate = 200
         addChild(missileSmokeEmitter)
         
-        missileFireEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Fire", ofType: "sks")!) as! SKEmitterNode
+        missileFireEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Fire", ofType: "sks")!) as? SKEmitterNode
         missileFireEmitter.position = CGPoint(x:0, y:0)
         missileFireEmitter.name = "missileFireEmitter"
         missileFireEmitter.particleZPosition = TANK_MISSILE_ZPOS

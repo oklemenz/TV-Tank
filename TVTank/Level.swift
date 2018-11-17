@@ -155,7 +155,7 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         let background = self.childNode(withName: "background")
         background?.zPosition = LEVEL_BACKGROUND_ZPOS
         
-        hud = SKNode.unarchiveFromFile("hud") as! HUD
+        hud = SKNode.unarchiveFromFile("hud") as? HUD
         let hudBar = hud.childNode(withName: "bar") as! SKShapeNode
         hudBar.removeFromParent()
         hudBar.zPosition = LEVEL_HUD_ZPOS
@@ -303,7 +303,7 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         trembleX = SKAction.sequence([moveX1, moveX4, moveX2, moveX3])
         trembleY = SKAction.sequence([moveY1, moveY4, moveY2, moveY3])
         
-        boxBreakEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Wood", ofType: "sks")!) as! SKEmitterNode
+        boxBreakEmitter = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Wood", ofType: "sks")!) as? SKEmitterNode
         boxBreakEmitter.position = CGPoint(x:0, y:0)
         boxBreakEmitter.name = "boxBreakEmitter"
         boxBreakEmitter.particleZPosition = BOX_BREAK_ZPOS

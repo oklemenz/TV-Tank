@@ -151,14 +151,14 @@ class Tank: SKSpriteNode {
         tankGunShadow.position = CGPoint(x: 4, y: 6)
         tankGun.addChild(tankGunShadow)
         
-        dustEmitterLeft = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Dust", ofType: "sks")!) as! SKEmitterNode
+        dustEmitterLeft = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Dust", ofType: "sks")!) as? SKEmitterNode
         dustEmitterLeft.position = CGPoint(x:-size.width / 2.0 + 10, y:0)
         dustEmitterLeft.name = "dustEmitterLeft"
         dustEmitterLeft.particleZPosition = TANK_DUST_ZPOS
         dustEmitterLeft.targetNode = self
         dustEmitterLeft.particleBirthRate = 0
         addChild(dustEmitterLeft)
-        dustEmitterRight = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Dust", ofType: "sks")!) as! SKEmitterNode
+        dustEmitterRight = NSKeyedUnarchiver.unarchiveObject(withFile: Bundle.main.path(forResource: "Dust", ofType: "sks")!) as? SKEmitterNode
         dustEmitterRight.position = CGPoint(x:size.width / 2.0 - 10, y:0)
         dustEmitterRight.name = "dustEmitterRight"
         dustEmitterRight.particleZPosition = TANK_DUST_ZPOS

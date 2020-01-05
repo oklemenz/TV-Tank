@@ -58,20 +58,20 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         skView.ignoresSiblingOrder = false
         
         leftArrowTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handleLeftArrowTapped))
-        leftArrowTapped.allowedPressTypes = [NSNumber(value: UIPressType.leftArrow.rawValue as Int)]
+        leftArrowTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.leftArrow.rawValue as Int)]
         self.view.addGestureRecognizer(leftArrowTapped)
         
         rightArrowTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handleRightArrowTapped))
-        rightArrowTapped.allowedPressTypes = [NSNumber(value: UIPressType.upArrow.rawValue as Int)]
+        rightArrowTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.upArrow.rawValue as Int)]
         self.view.addGestureRecognizer(rightArrowTapped)
         
         upArrowTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handleUpArrowTapped))
-        upArrowTapped.allowedPressTypes = [NSNumber(value: UIPressType.upArrow.rawValue as Int)]
+        upArrowTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.upArrow.rawValue as Int)]
         upArrowTapped.delegate = self
         self.view.addGestureRecognizer(upArrowTapped)
         
         downArrowTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handleDownArrowTapped))
-        downArrowTapped.allowedPressTypes = [NSNumber(value: UIPressType.downArrow.rawValue as Int)]
+        downArrowTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.downArrow.rawValue as Int)]
         downArrowTapped.delegate = self
         self.view.addGestureRecognizer(downArrowTapped)
         
@@ -80,15 +80,15 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         self.view.addGestureRecognizer(panTouched)
         
         selectTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handleSelectTapped))
-        selectTapped.allowedPressTypes = [NSNumber(value: UIPressType.select.rawValue as Int)]
+        selectTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.select.rawValue as Int)]
         self.view.addGestureRecognizer(selectTapped)
         
         menuTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handleMenuTapped))
-        menuTapped.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue as Int)]
+        menuTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.menu.rawValue as Int)]
         self.view.addGestureRecognizer(menuTapped)
         
         playTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handlePlayTapped))
-        playTapped.allowedPressTypes = [NSNumber(value: UIPressType.playPause.rawValue as Int)]
+        playTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.playPause.rawValue as Int)]
         self.view.addGestureRecognizer(playTapped)
         
         NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showMenu) , name: NSNotification.Name(rawValue: "showMenu"), object: nil)
@@ -195,16 +195,16 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
             switch swipeGesture.direction {
-            case UISwipeGestureRecognizerDirection.right:
+            case UISwipeGestureRecognizer.Direction.right:
                 menu.up()
                 break
-            case UISwipeGestureRecognizerDirection.down:
+            case UISwipeGestureRecognizer.Direction.down:
                 menu.right()
                 break
-            case UISwipeGestureRecognizerDirection.left:
+            case UISwipeGestureRecognizer.Direction.left:
                 menu.down()
                 break
-            case UISwipeGestureRecognizerDirection.up:
+            case UISwipeGestureRecognizer.Direction.up:
                 menu.left()
                 break
             default:

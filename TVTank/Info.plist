@@ -40,6 +40,13 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
+		<string>accelerometer</string>
+	</array>
+	<key>NSMotionUsageDescription</key>
+	<string>Used to control tank</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>AppleChancery.ttf</string>
 	</array>
 </dict>
 </plist>

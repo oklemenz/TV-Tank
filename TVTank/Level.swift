@@ -310,18 +310,22 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         boxBreakEmitter.targetNode = self
         boxBreakEmitter.particleBirthRate = 0
         addChild(boxBreakEmitter)
-        
+                
         setupComplete = true
     }
     
     func showStatusText(_ text : String) {
+        var offset:CGFloat = 0
+        #if os(iOS)
+        offset += 50
+        #endif
         if statusText == nil {
             statusText = SKLabelNode()
             statusText.alpha = 0.0
             statusText.fontSize = 50
             statusText.fontName = "HelveticaNeue"
             statusText.fontColor = UIColor.white
-            statusText.position = CGPoint(x: self.size.width / 2.0, y: 15)
+            statusText.position = CGPoint(x: self.size.width / 2.0, y: 15 + offset)
             statusText.horizontalAlignmentMode = .center
             statusText.zPosition = LEVEL_STATUS_ZPOS
             addChild(statusText)

@@ -9,10 +9,17 @@
 import UIKit
 import SpriteKit
 import GameController
+#if !os(tvOS)
+import CoreMotion
+#endif
 
 class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     
+    #if os(tvOS)
     let PAN_BIAS : CGFloat = 200
+    #else
+    let PAN_BIAS : CGFloat = 25
+    #endif
     
     var splash: SKScene!
     var menu: Menu!
@@ -21,6 +28,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     var splashActive = false
     var menuActive = false
     var menuControlsActive = false
+    var gameActive = false
     
     var gameController : GCController!
     
@@ -28,7 +36,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     var rightArrowTapped : UITapGestureRecognizer!
     var upArrowTapped : UITapGestureRecognizer!
     var downArrowTapped : UITapGestureRecognizer!
-    var panTouched : UIPanGestureRecognizer!
+    var tapGesture: UITapGestureRecognizer!
+    var panTouched : UILongPressGestureRecognizer!
     
     var selectTapped : UITapGestureRecognizer!
     var menuTapped : UITapGestureRecognizer!
@@ -41,14 +50,26 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var panPos : CGPoint!
     
+    let virtualPadMaxSize: CGSize = CGSize(width: 200, height: 200)
+    var virtualPadSize: CGSize!
+    var virtualPadCenter: CGPoint!
+    
+    #if !os(tvOS)
+    let motion = CMMotionManager()
+    #endif
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         registerSwipes()
         registerForGameControllerNotifications()
         
-        splash = SKScene(fileNamed: "splash")        
+        splash = SKScene(fileNamed: "splash")
         menu = Menu(fileNamed: "menu")
+        #if os(iOS)
+        splash.scaleMode = .aspectFit
+        menu.scaleMode = .aspectFit
+        #endif
         
         let skView = self.view as! SKView
         skView.showsFPS = false
@@ -75,7 +96,12 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         downArrowTapped.delegate = self
         self.view.addGestureRecognizer(downArrowTapped)
         
-        panTouched = UIPanGestureRecognizer(target: self, action: #selector(GameViewController.handlePanTouch))
+        tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTap))
+        tapGesture.delegate = self
+        self.view.addGestureRecognizer(tapGesture)
+        
+        panTouched = UILongPressGestureRecognizer(target: self, action: #selector(handlePanTouch))
+        panTouched.minimumPressDuration = 0
         panTouched.delegate = self
         self.view.addGestureRecognizer(panTouched)
         
@@ -90,9 +116,24 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         playTapped = UITapGestureRecognizer(target: self, action: #selector(GameViewController.handlePlayTapped))
         playTapped.allowedPressTypes = [NSNumber(value: UIPress.PressType.playPause.rawValue as Int)]
         self.view.addGestureRecognizer(playTapped)
-        
+                        
         NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showMenu) , name: NSNotification.Name(rawValue: "showMenu"), object: nil)
         
+        #if os(iOS)
+        if motion.isAccelerometerAvailable {
+            let queue = OperationQueue()
+            motion.startAccelerometerUpdates(to: queue) { (data, err) in
+                if let data = data  {
+                    self.updateMotion(x: CGFloat(data.acceleration.x) * 1.5, y: CGFloat(data.acceleration.y * 1.5))
+                }
+            }
+        }
+        #endif
+
+        virtualPadSize = CGSize(width: min(self.view.frame.size.width / 4, virtualPadMaxSize.width),
+                                height: min(self.view.frame.size.height / 2, virtualPadMaxSize.height))
+        virtualPadCenter = CGPoint(x: virtualPadSize.width * 0.5, y: virtualPadSize.height * 1.5)
+
         showSplash()
     }
     
@@ -128,8 +169,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 if self.menuActive {
                     return
                 }
-                if let level = self.level {
-                    level.tank.rotateTankGun(xValue, y: yValue)
+                if let level = self.level, let tank = level.tank {
+                    tank.rotateTankGun(xValue, y: yValue)
                 }
             }
             
@@ -138,14 +179,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                     return
                 }
                 if pressed {
-                    if let level = self.level {
-                        level.tank.toggleAbsGun()
-                        if level.tank.tankAbsGun {
-                            level.showStatusText("Gun Autolock On")
-                        } else {
-                            level.showStatusText("Gun Autolock Off")
-                        }
-                    }
+                    self.toggleAbsGun()
                 }
             }
             
@@ -154,8 +188,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                     return
                 }
                 if pressed {
-                    if let level = self.level {
-                        level.tank.shoot()
+                    if let level = self.level, let tank = level.tank {
+                        tank.shoot()
                     }
                 }
             }
@@ -163,11 +197,26 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         
         if let motion = self.gameController.motion {
             motion.valueChangedHandler = { (motion: GCMotion) -> () in
-                if let level = self.level {
-                    level.tank.rotateTank(CGFloat(motion.gravity.y))
-                    level.tank.moveTank(CGFloat(motion.gravity.x))
-                }
+                self.updateMotion(x: CGFloat(motion.gravity.x), y: CGFloat(motion.gravity.y))
             }
+        }
+    }
+    
+    func toggleAbsGun() {
+        if let level = self.level, let tank = level.tank {
+            tank.toggleAbsGun()
+            if tank.tankAbsGun {
+                level.showStatusText("Gun Autolock On")
+            } else {
+                level.showStatusText("Gun Autolock Off")
+            }
+        }
+    }
+    
+    func updateMotion(x: CGFloat, y: CGFloat) {
+        if let level = self.level, let tank = level.tank {
+            tank.rotateTank(y)
+            tank.moveTank(x)
         }
     }
     
@@ -233,19 +282,28 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         if GameState.instance.levelPack == menu.levelPack &&
             GameState.instance.level == menu.level &&
             level != nil && !level!.levelEnd && !restart {
+            #if os(iOS)
+            level?.scaleMode = .aspectFit
+            #endif
             skView.presentScene(level!, transition: SKTransition.crossFade(withDuration: 1.0))
-            level!.continueGame()
+            level?.continueGame()
         } else {
             GameState.instance.levelPack = menu.levelPack
             GameState.instance.level = menu.level
             level = Level(fileNamed: "Level_\(GameState.instance.levelPack)_\(String(format: "%02d", GameState.instance.level))")
+            #if os(tvOS)
             level?.scaleMode = .aspectFill
+            #else
+            level?.scaleMode = .aspectFit
+            #endif
             skView.presentScene(level!, transition: SKTransition.crossFade(withDuration: 1.0))
         }
+        gameActive = true
     }
     
     @objc func showMenu() {
         splashActive = false
+        gameActive = false
         if let level = level {
             level.pauseGame()
         }
@@ -313,24 +371,50 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    @objc func handlePanTouch(_ panGesture: UIPanGestureRecognizer) {
+    @objc func handlePanTouch(_ panGesture: UILongPressGestureRecognizer) {
         if panGesture.state == .began {
-            panPos = panGesture.translation(in: self.view)
+            panPos = panGesture.location(in: self.view)
         }
-        if panGesture.state == .changed {
-            let currentPanPos = panGesture.translation(in: self.view)
-            if currentPanPos.y - panPos.y >= PAN_BIAS {
-                menu.right()
-                panPos = currentPanPos
-            } else if panPos.y - currentPanPos.y >= PAN_BIAS {
-                menu.left()
-                panPos = currentPanPos
-            } else if currentPanPos.x - panPos.x >= PAN_BIAS {
-                menu.up()
-                panPos = currentPanPos
-            } else if panPos.x - currentPanPos.x >= PAN_BIAS {
-                menu.down()
-                panPos = currentPanPos
+        let currentPanPos = panGesture.location(in: self.view)
+        if self.menuActive {
+            if panGesture.state == .changed {
+                #if os(tvOS)
+                if currentPanPos.y - panPos.y >= PAN_BIAS {
+                    menu.right()
+                    panPos = currentPanPos
+                } else if panPos.y - currentPanPos.y >= PAN_BIAS {
+                    menu.left()
+                    panPos = currentPanPos
+                } else if currentPanPos.x - panPos.x >= PAN_BIAS {
+                    menu.up()
+                    panPos = currentPanPos
+                } else if panPos.x - currentPanPos.x >= PAN_BIAS {
+                    menu.down()
+                    panPos = currentPanPos
+                }
+                #else
+                if currentPanPos.x - panPos.x >= PAN_BIAS {
+                    menu.right()
+                    panPos = currentPanPos
+                } else if panPos.x - currentPanPos.x >= PAN_BIAS {
+                    menu.left()
+                    panPos = currentPanPos
+                } else if currentPanPos.y - panPos.y >= PAN_BIAS {
+                    menu.down()
+                    panPos = currentPanPos
+                } else if panPos.y - currentPanPos.y >= PAN_BIAS {
+                    menu.up()
+                    panPos = currentPanPos
+                }
+                #endif
+            }
+        } else if (self.gameActive) {
+            if currentPanPos.x <= virtualPadSize.width * 1.5 && currentPanPos.y >= virtualPadSize.height {
+                if let level = self.level, let tank = level.tank {
+                    let xValue = Float(min(1, max(-1, (currentPanPos.x - virtualPadCenter.x) / virtualPadSize.width / 0.5)))
+                    let yValue = Float(min(1, max(-1, (currentPanPos.y - virtualPadCenter.y) / virtualPadSize.height / 0.5)))
+                    tank.rotateTankGun(-yValue, y: -xValue)
+                }
             }
         }
     }
@@ -367,10 +451,43 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         return true
     }
     
+    @objc func didTap(_ tapGesture: UITapGestureRecognizer) {
+        if splashActive {
+            showMenu()
+        } else if menuActive {
+            handleSelectTapped()
+        } else if gameActive {
+            if let level = self.level, let tank = level.tank {
+                let tapPos = tapGesture.location(in: self.view)
+                if tapPos.x >= virtualPadSize.width * 2.5 && tapPos.y >= virtualPadSize.height {
+                    tank.shoot()
+                } else if tapPos.x >= virtualPadSize.width * 1.5 && tapPos.x <= virtualPadSize.width * 2 &&
+                    tapPos.y >= virtualPadSize.height {
+                    showMenu()
+                } else if tapPos.x >= virtualPadSize.width * 2 && tapPos.x <= virtualPadSize.width * 2.5 &&
+                    tapPos.y >= virtualPadSize.height {
+                    toggleAbsGun()
+                }
+            }
+        }
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+        
     override func didReceiveMemoryWarning() {
         if !splashActive {
             splash = nil
         }
         super.didReceiveMemoryWarning()
+    }
+    
+    override var prefersHomeIndicatorAutoHidden: Bool {
+      return true
+    }
+    
+    override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
+        return UIRectEdge.bottom
     }
 }

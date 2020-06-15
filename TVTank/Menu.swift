@@ -92,7 +92,7 @@ class Menu: SKScene {
         if !setupComplete {
             return
         }
-        if level + 10 < maxLevel {
+        if level + 10 <= maxLevel {
             level += 10
             updateSelection()
         }

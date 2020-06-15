@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>TVTank-Touch.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 		<key>TVTank.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -12,6 +17,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>22E64896246733EE00D03042</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>549F86BF1BB279A500BC4D0E</key>
 		<dict>
 			<key>primary</key>

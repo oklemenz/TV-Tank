@@ -46,7 +46,9 @@
 	<string>1.0</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>AppleChancery.ttf</string>
+		<string>Chancery.ttf</string>
 	</array>
+	<key>CFBundleDisplayName</key>
+	<string>TV Tank Touch</string>
 </dict>
 </plist>

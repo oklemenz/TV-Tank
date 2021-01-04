@@ -53,6 +53,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     let virtualPadMaxSize: CGSize = CGSize(width: 200, height: 200)
     var virtualPadSize: CGSize!
     var virtualPadCenter: CGPoint!
+
+    var timer: Timer?
     
     #if !os(tvOS)
     let motion = CMMotionManager()
@@ -188,9 +190,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                     return
                 }
                 if pressed {
-                    if let level = self.level, let tank = level.tank {
-                        tank.shoot()
-                    }
+                    self.shoot()
                 }
             }
         }
@@ -210,6 +210,12 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             } else {
                 level.showStatusText("Gun Autolock Off")
             }
+        }
+    }
+    
+    func shoot() {
+        if let level = self.level {
+            level.shoot()
         }
     }
     
@@ -408,15 +414,34 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
                 #endif
             }
-        } else if (self.gameActive) {
-            if currentPanPos.x <= virtualPadSize.width * 1.5 && currentPanPos.y >= virtualPadSize.height {
+        } else if self.gameActive {
+            if panGesture.state == .began && !(currentPanPos.x <= virtualPadSize.width * 1.5 && currentPanPos.y >= virtualPadSize.height) {
+                panPos = nil
+            }
+            if panPos != nil {
                 if let level = self.level, let tank = level.tank {
-                    let xValue = Float(min(1, max(-1, (currentPanPos.x - virtualPadCenter.x) / virtualPadSize.width / 0.5)))
-                    let yValue = Float(min(1, max(-1, (currentPanPos.y - virtualPadCenter.y) / virtualPadSize.height / 0.5)))
-                    tank.rotateTankGun(-yValue, y: -xValue)
+                    tank.rotateTankGun(-Float(currentPanPos.y - virtualPadCenter.y), y: -Float(currentPanPos.x - virtualPadCenter.x))
+                }
+                if panGesture.state == .began {
+                    hideControls()
+                } else if panGesture.state != .changed {
+                    showControls()
                 }
             }
         }
+    }
+    
+    func hideControls() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { (timer) in
+            self.level?.controls?.hide()
+        }
+    }
+    
+    func showControls() {
+        timer?.invalidate()
+        timer = nil
+        level?.controls?.show()
     }
     
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
@@ -452,15 +477,17 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func didTap(_ tapGesture: UITapGestureRecognizer) {
+        let tapPos = tapGesture.location(in: self.view)
         if splashActive {
             showMenu()
         } else if menuActive {
+            let point = menu.convertPoint(fromView: tapPos)
+            menu.setSelectionAtPoint(point)
             handleSelectTapped()
         } else if gameActive {
-            if let level = self.level, let tank = level.tank {
-                let tapPos = tapGesture.location(in: self.view)
+            if let level = self.level, let _ = level.tank {
                 if tapPos.x >= virtualPadSize.width * 2.5 && tapPos.y >= virtualPadSize.height {
-                    tank.shoot()
+                    self.shoot()
                 } else if tapPos.x >= virtualPadSize.width * 1.5 && tapPos.x <= virtualPadSize.width * 2 &&
                     tapPos.y >= virtualPadSize.height {
                     showMenu()
@@ -483,11 +510,14 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         super.didReceiveMemoryWarning()
     }
     
+    #if os(iOS)
     override var prefersHomeIndicatorAutoHidden: Bool {
       return true
     }
-    
+       
     override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
         return UIRectEdge.bottom
     }
+    #endif
+    
 }

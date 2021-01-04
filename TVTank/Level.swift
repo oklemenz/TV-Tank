@@ -58,6 +58,7 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
     var levelEnd = false
     
     var hud : HUD!
+    var controls: Controls?
     var tank : Tank!
     var statusText : SKLabelNode!
     var statusTextShadow : SKLabelNode!
@@ -161,6 +162,15 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         hudBar.zPosition = LEVEL_HUD_ZPOS
         hudBar.position = CGPoint(x: self.size.width / 2.0, y: self.size.height - hudBar.frame.size.height / 2.0)
         addChild(hudBar)
+
+        #if os(iOS)
+        controls = SKNode.unarchiveFromFile("controls") as? Controls
+        let controlsBar = controls?.childNode(withName: "bar") as! SKShapeNode
+        controlsBar.removeFromParent()
+        controlsBar.zPosition = LEVEL_HUD_ZPOS
+        controlsBar.position = CGPoint(x: self.size.width / 2.0, y: self.size.height / 4.0)
+        addChild(controlsBar)
+        #endif
         
         var spotTextures:[SKTexture] = []
         for i in 1...8 {
@@ -516,6 +526,7 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         ammo.userData!.setValue("true", forKey: "collected")
         tank.missileCount += Int((ammo.userData!.value(forKey: "count")! as AnyObject).int32Value)
         hud.missileSelected()
+        controls?.missileSelected()
         run(ammoCollectedSound)
         ammo.removeFromParent()
     }
@@ -539,6 +550,17 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
             }
         } else if object.physicsBody!.categoryBitMask == CollisionType.box.rawValue {
             hud.boxMissed()
+        }
+    }
+    
+    func shoot() {
+        if let tank = tank {
+            tank.shoot()
+            if tank.missileCount > 0 {
+                controls?.missileSelected()
+            } else {
+                controls?.bulletSelected()
+            }
         }
     }
     

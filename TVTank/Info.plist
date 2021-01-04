@@ -46,7 +46,7 @@
 	<string>Used to control tank</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>AppleChancery.ttf</string>
+		<string>Chancery.ttf</string>
 	</array>
 </dict>
 </plist>

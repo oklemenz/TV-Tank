@@ -92,7 +92,7 @@ class Menu: SKScene {
         if !setupComplete {
             return
         }
-        if level + 10 <= maxLevel {
+        if level + 10 < maxLevel {
             level += 10
             updateSelection()
         }
@@ -143,6 +143,17 @@ class Menu: SKScene {
         if level >= 1 && level <= levelNodes.count {
             let levelNode = levelNodes[level-1]
             levelNode.glowWidth = 5.0
+        }
+    }
+    
+    func setSelectionAtPoint(_ point: CGPoint) {
+        for (index, levelNode) in levelNodes.enumerated() {
+            let levelIndex = index + 1
+            if levelIndex < maxLevel && levelNode.frame.contains(point) {
+                level = levelIndex
+                updateSelection()
+                return
+            }
         }
     }
     

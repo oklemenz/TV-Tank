@@ -50,7 +50,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var panPos : CGPoint!
     
-    let virtualPadMaxSize: CGSize = CGSize(width: 200, height: 200)
     var virtualPadSize: CGSize!
     var virtualPadCenter: CGPoint!
 
@@ -131,10 +130,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
         #endif
-
-        virtualPadSize = CGSize(width: min(self.view.frame.size.width / 4, virtualPadMaxSize.width),
-                                height: min(self.view.frame.size.height / 2, virtualPadMaxSize.height))
-        virtualPadCenter = CGPoint(x: virtualPadSize.width * 0.5, y: virtualPadSize.height * 1.5)
 
         showSplash()
     }
@@ -281,6 +276,9 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func showLevel(_ restart : Bool) {
+        virtualPadSize = CGSize(width: self.view.frame.size.width / 4, height: self.view.frame.size.height / 2)
+        virtualPadCenter = CGPoint(x: virtualPadSize.width * 0.5, y: virtualPadSize.height * 1.5)
+
         splashActive = false
         menuActive = false
         menuControlsActive = false
@@ -304,6 +302,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             #endif
             skView.presentScene(level!, transition: SKTransition.crossFade(withDuration: 1.0))
         }
+        
         gameActive = true
     }
     
@@ -415,7 +414,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 #endif
             }
         } else if self.gameActive {
-            if panGesture.state == .began && !(currentPanPos.x <= virtualPadSize.width * 1.5 && currentPanPos.y >= virtualPadSize.height) {
+            if panGesture.state == .began && !(currentPanPos.x <= 1.5 * virtualPadSize.width && currentPanPos.y >= virtualPadSize.height) {
                 panPos = nil
             }
             if panPos != nil {
@@ -486,14 +485,12 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             handleSelectTapped()
         } else if gameActive {
             if let level = self.level, let _ = level.tank {
-                if tapPos.x >= virtualPadSize.width * 2.5 && tapPos.y >= virtualPadSize.height {
-                    self.shoot()
-                } else if tapPos.x >= virtualPadSize.width * 1.5 && tapPos.x <= virtualPadSize.width * 2 &&
-                    tapPos.y >= virtualPadSize.height {
+                if tapPos.x >= 1.25 * virtualPadSize.width && tapPos.x <= 2 * virtualPadSize.width && tapPos.y >= virtualPadSize.height {
                     showMenu()
-                } else if tapPos.x >= virtualPadSize.width * 2 && tapPos.x <= virtualPadSize.width * 2.5 &&
-                    tapPos.y >= virtualPadSize.height {
+                } else if tapPos.x >= 2 * virtualPadSize.width && tapPos.x <= 2.75 * virtualPadSize.width && tapPos.y >= virtualPadSize.height {
                     toggleAbsGun()
+                } else if tapPos.x >= 2.75 * virtualPadSize.width && tapPos.y >= virtualPadSize.height {
+                    shoot()
                 }
             }
         }
@@ -517,6 +514,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
        
     override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
         return UIRectEdge.bottom
+    }
+    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.landscapeRight
     }
     #endif
     

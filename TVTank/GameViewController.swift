@@ -29,6 +29,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     var menuActive = false
     var menuControlsActive = false
     var gameActive = false
+    var controllerActive = false
     
     var gameController : GCController!
     
@@ -142,10 +143,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @objc func handleControllerDidConnectNotification(_ notification: Notification) {
         let connectedGameController = notification.object as! GCController
-        let microGamepad = connectedGameController.microGamepad
-        if microGamepad != nil {
+        if connectedGameController.microGamepad != nil || connectedGameController.extendedGamepad != nil {
             self.gameController = connectedGameController
             registerButtons()
+            controllerActive = true
         }
     }
     
@@ -153,11 +154,146 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         let disconnectedGameController = notification.object as! GCController
         if disconnectedGameController == self.gameController {
             self.gameController = nil
+            controllerActive = false
         }
     }
     
-    func registerButtons() {        
-        if let microGamepad = self.gameController.microGamepad {
+    func registerButtons() {
+        if let extendedGamepad = self.gameController.extendedGamepad {
+            extendedGamepad.dpad.valueChangedHandler = { (dpad: GCControllerDirectionPad, xValue: Float, yValue: Float) -> Void in
+                if self.menuActive {
+                    if (xValue < -0.5) {
+                        self.menu.left()
+                    } else if (xValue > 0.5) {
+                        self.menu.right()
+                    }
+                    if (yValue > 0.5) {
+                        self.menu.up()
+                    } else if (yValue < -0.5) {
+                        self.menu.down()
+                    }
+                }
+            }
+            
+            extendedGamepad.leftThumbstick.valueChangedHandler = { (dpad: GCControllerDirectionPad, xValue: Float, yValue: Float) -> Void in
+                if self.menuActive {
+                    return
+                } else {
+                    if let level = self.level, let tank = level.tank {
+                        tank.rotateTankGun(yValue, y: -xValue)
+                    }
+                }
+            }
+            
+            extendedGamepad.rightThumbstick.valueChangedHandler = { (dpad: GCControllerDirectionPad, xValue: Float, yValue: Float) -> Void in
+                if self.menuActive {
+                    return
+                } else {
+                    if let level = self.level {
+                        let dampFactor = 1 - abs(yValue) * 0.5;
+                        level.controllerXValue = CGFloat(yValue);
+                        level.controllerYValue = CGFloat(-xValue * dampFactor);
+                    }
+                }
+            }
+            
+            extendedGamepad.buttonA.pressedChangedHandler = { (buttonA: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.splashActive {
+                        self.showMenu()
+                    } else if self.menuActive {
+                        self.handleShowLevel()
+                    } else {
+                        self.shoot()
+                    }
+                }
+            }
+            
+            extendedGamepad.buttonB.pressedChangedHandler = { (buttonB: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.splashActive {
+                        self.showMenu()
+                    } else if self.menuActive {
+                        self.handleShowLevel()
+                    } else {
+                        self.shoot()
+                    }
+                }
+            }
+            
+            extendedGamepad.buttonX.pressedChangedHandler = { (buttonX: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.splashActive {
+                        self.showMenu()
+                    } else if self.menuActive {
+                        self.handleShowLevel()
+                    } else {
+                        self.toggleAbsGun()
+                    }
+                }
+            }
+            
+            extendedGamepad.buttonY.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.splashActive {
+                        self.showMenu()
+                    } else if self.menuActive {
+                        self.handleShowLevel()
+                    } else {
+                        self.toggleAbsGun()
+                    }
+                }
+            }
+            
+            extendedGamepad.leftShoulder.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.gameActive {
+                        self.shoot()
+                    }
+                }
+            }
+            
+            extendedGamepad.rightShoulder.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.gameActive {
+                        self.shoot()
+                    }
+                }
+            }
+            
+            extendedGamepad.leftTrigger.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.gameActive {
+                        self.shoot()
+                    }
+                }
+            }
+            
+            extendedGamepad.rightTrigger.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                if pressed {
+                    if self.gameActive {
+                        self.shoot()
+                    }
+                }
+            }
+            
+            if #available(iOS 13.0, *) {
+                extendedGamepad.buttonOptions?.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                    if pressed {
+                        if self.gameActive {
+                            self.showMenu()
+                        }
+                    }
+                }
+                extendedGamepad.buttonMenu.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
+                    if pressed {
+                        if self.gameActive {
+                            self.showMenu()
+                        }
+                    }
+                }
+            }
+        } else if let microGamepad = self.gameController.microGamepad {
             
             // microGamepad.allowsRotation = true
             microGamepad.reportsAbsoluteDpadValues = true
@@ -190,7 +326,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
         
-        if let motion = self.gameController.motion {
+        if let motion = self.gameController?.motion {
             motion.valueChangedHandler = { (motion: GCMotion) -> () in
                 self.updateMotion(x: CGFloat(motion.gravity.x), y: CGFloat(motion.gravity.y))
             }
@@ -216,8 +352,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func updateMotion(x: CGFloat, y: CGFloat) {
         if let level = self.level, let tank = level.tank {
-            tank.rotateTank(y)
-            tank.moveTank(x)
+            if !controllerActive {
+                tank.rotateTank(y)
+                tank.moveTank(x)
+            }
         }
     }
     
@@ -295,6 +433,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             GameState.instance.levelPack = menu.levelPack
             GameState.instance.level = menu.level
             level = Level(fileNamed: "Level_\(GameState.instance.levelPack)_\(String(format: "%02d", GameState.instance.level))")
+            level?.controllerActive = self.controllerActive
             #if os(tvOS)
             level?.scaleMode = .aspectFill
             #else
@@ -302,6 +441,9 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             #endif
             skView.presentScene(level!, transition: SKTransition.crossFade(withDuration: 1.0))
         }
+        
+        level?.controllerXValue = 0;
+        level?.controllerYValue = 0;
         
         gameActive = true
     }
@@ -332,11 +474,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         if splashActive {
             showMenu()
         } else if menuActive && menuControlsActive {
-            menuActive = false
-            menuControlsActive = false
-            menuTapped.isEnabled = true
-            menu.select()
-            showLevel(false)
+            handleShowLevel()
         }
     }
     
@@ -344,12 +482,16 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         if splashActive {
             showMenu()
         } else if menuActive && menuControlsActive {
-            menuActive = false
-            menuControlsActive = false
-            menuTapped.isEnabled = true
-            menu.select()
-            showLevel(true)
+            handleShowLevel()
         }
+    }
+    
+    @objc func handleShowLevel() {
+        menuActive = false
+        menuControlsActive = false
+        menuTapped.isEnabled = true
+        menu.select()
+        showLevel(true)
     }
     
     @objc func handleUpArrowTapped() {
@@ -413,7 +555,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
                 #endif
             }
-        } else if self.gameActive {
+        } else if self.gameActive && !controllerActive {
             if panGesture.state == .began && !(currentPanPos.x <= 1.5 * virtualPadSize.width && currentPanPos.y >= virtualPadSize.height) {
                 panPos = nil
             }
@@ -483,7 +625,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             let point = menu.convertPoint(fromView: tapPos)
             menu.setSelectionAtPoint(point)
             handleSelectTapped()
-        } else if gameActive {
+        } else if gameActive && !controllerActive {
             if let level = self.level, let _ = level.tank {
                 if tapPos.x >= 1.25 * virtualPadSize.width && tapPos.x <= 2 * virtualPadSize.width && tapPos.y >= virtualPadSize.height {
                     showMenu()

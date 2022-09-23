@@ -133,6 +133,7 @@
 		22E648FE2467379D00D03042 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E648FD2467379D00D03042 /* GameController.framework */; };
 		22EBA9F21CCF3FB100EE35A2 /* dark_desert_2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22EBA9F01CCF3FB100EE35A2 /* dark_desert_2.mp3 */; };
 		22EBA9F31CCF3FB100EE35A2 /* dark_desert.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22EBA9F11CCF3FB100EE35A2 /* dark_desert.mp3 */; };
+		543EA7E028DC7CBE0062A4F4 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C10D1B1D4E2EF200A838A9 /* GameController.framework */; };
 		5456CDFC259BC27B0074E245 /* controls.sks in Resources */ = {isa = PBXBuildFile; fileRef = 5456CDFB259BC27B0074E245 /* controls.sks */; };
 		545B54FB25A37259003490C1 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 545BCA68259BC9E3004B686F /* Controls.swift */; };
 		545B550325A37305003490C1 /* Chancery.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 545B550225A37305003490C1 /* Chancery.ttf */; };
@@ -237,6 +238,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				543EA7E028DC7CBE0062A4F4 /* GameController.framework in Frameworks */,
 				22E648FE2467379D00D03042 /* GameController.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -712,12 +714,14 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6N277JA649;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "TVTank-Touch/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = de.oklemenz.TVTankTouch;
@@ -740,11 +744,13 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6N277JA649;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "TVTank-Touch/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = de.oklemenz.TVTankTouch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -867,8 +873,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = TVTank/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = de.oklemenz.TVTank;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -884,8 +892,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = TVTank/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = de.oklemenz.TVTank;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

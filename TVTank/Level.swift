@@ -59,6 +59,9 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
     
     var hud : HUD!
     var controls: Controls?
+    var controllerActive = false
+    var controllerXValue: CGFloat = 0;
+    var controllerYValue: CGFloat = 0;
     var tank : Tank!
     var statusText : SKLabelNode!
     var statusTextShadow : SKLabelNode!
@@ -164,12 +167,14 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         addChild(hudBar)
 
         #if os(iOS)
-        controls = SKNode.unarchiveFromFile("controls") as? Controls
-        let controlsBar = controls?.childNode(withName: "bar") as! SKShapeNode
-        controlsBar.removeFromParent()
-        controlsBar.zPosition = LEVEL_HUD_ZPOS
-        controlsBar.position = CGPoint(x: self.size.width / 2.0, y: self.size.height / 4.0)
-        addChild(controlsBar)
+        if !controllerActive {
+            controls = SKNode.unarchiveFromFile("controls") as? Controls
+            let controlsBar = controls?.childNode(withName: "bar") as! SKShapeNode
+            controlsBar.removeFromParent()
+            controlsBar.zPosition = LEVEL_HUD_ZPOS
+            controlsBar.position = CGPoint(x: self.size.width / 2.0, y: self.size.height / 4.0)
+            addChild(controlsBar)
+        }
         #endif
         
         var spotTextures:[SKTexture] = []
@@ -622,8 +627,16 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         isPaused = false
     }
     
+    func updateController() {
+        if controllerActive {
+            tank.rotateTank(controllerYValue)
+            tank.moveTank(controllerXValue, offset: 0)
+        }
+    }
+    
     override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
+        updateController()
         var deltaTime : CFTimeInterval = 0.0
         if deltaTimeStart != -1 {
             deltaTime = currentTime - deltaTimeStart

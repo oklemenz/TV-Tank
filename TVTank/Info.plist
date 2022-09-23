@@ -28,6 +28,10 @@
 			<key>ProfileName</key>
 			<string>MicroGamepad</string>
 		</dict>
+		<dict>
+			<key>ProfileName</key>
+			<string>ExtendedGamepad</string>
+		</dict>
 	</array>
 	<key>GCSupportsControllerUserInteraction</key>
 	<true/>
@@ -35,6 +39,12 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMotionUsageDescription</key>
+	<string>Used to control tank</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Chancery.ttf</string>
+	</array>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -42,17 +52,11 @@
 		<string>arm64</string>
 		<string>accelerometer</string>
 	</array>
-	<key>NSMotionUsageDescription</key>
-	<string>Used to control tank</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Chancery.ttf</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
+	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UISupportedInterfaceOrientations</key>
+	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>

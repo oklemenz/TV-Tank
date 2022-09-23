@@ -172,12 +172,13 @@ class Tank: SKSpriteNode {
         dustEmitterRight.targetNode = parent
     }
     
-    func moveTank(_ value: CGFloat) {
+    func moveTank(_ value: CGFloat, offset: CGFloat = 0.5) {
         if destroyed {
             return
         }
         
-        tankMoveSpeed = (value + 0.5)
+        tankMoveSpeed = value + offset
+
         if tankMoveSpeed > 0.1 {
             tankMovingDirection = MovingDirection.forwards
         } else if tankMoveSpeed < -0.1 {

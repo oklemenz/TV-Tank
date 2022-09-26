@@ -59,14 +59,16 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
     
     var hud : HUD!
     var controls: Controls?
-    var controllerActive = false
-    var controllerXValue: CGFloat = 0;
-    var controllerYValue: CGFloat = 0;
     var tank : Tank!
     var statusText : SKLabelNode!
     var statusTextShadow : SKLabelNode!
     var hasTankContact = false
     var progressNodes : [ProgressNode] = []
+
+    var gameControllerActive = false
+    var gameControllerType: String = "";
+    var gameControllerXValue: CGFloat = 0;
+    var gameControllerYValue: CGFloat = 0;
     
     var boxCollectedSound: SKAction!
     var spotReachedSound: SKAction!
@@ -167,7 +169,7 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         addChild(hudBar)
 
         #if os(iOS)
-        if !controllerActive {
+        if !gameControllerActive {
             controls = SKNode.unarchiveFromFile("controls") as? Controls
             let controlsBar = controls?.childNode(withName: "bar") as! SKShapeNode
             controlsBar.removeFromParent()
@@ -627,16 +629,16 @@ class Level: SKScene, SKPhysicsContactDelegate, ProgressNodeDelegate {
         isPaused = false
     }
     
-    func updateController() {
-        if controllerActive {
-            tank.rotateTank(controllerYValue)
-            tank.moveTank(controllerXValue, offset: 0)
+    func updateGameController() {
+        if gameControllerActive && gameControllerType == "extended" {
+            tank.rotateTank(gameControllerYValue)
+            tank.moveTank(gameControllerXValue, offset: 0)
         }
     }
     
     override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
-        updateController()
+        updateGameController()
         var deltaTime : CFTimeInterval = 0.0
         if deltaTimeStart != -1 {
             deltaTime = currentTime - deltaTimeStart

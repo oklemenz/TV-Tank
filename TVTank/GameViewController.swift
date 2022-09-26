@@ -29,9 +29,11 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     var menuActive = false
     var menuControlsActive = false
     var gameActive = false
-    var controllerActive = false
     
     var gameController : GCController!
+    var gameControllerActive = false
+    var gameControllerType: String = "";
+
     
     var leftArrowTapped : UITapGestureRecognizer!
     var rightArrowTapped : UITapGestureRecognizer!
@@ -125,8 +127,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         if motion.isAccelerometerAvailable {
             let queue = OperationQueue()
             motion.startAccelerometerUpdates(to: queue) { (data, err) in
-                if let data = data  {
-                    self.updateMotion(x: CGFloat(data.acceleration.x) * 1.5, y: CGFloat(data.acceleration.y * 1.5))
+                if !self.gameControllerActive {
+                    if let data = data {
+                        self.updateMotion(x: CGFloat(data.acceleration.x) * 1.5, y: CGFloat(data.acceleration.y * 1.5))
+                    }
                 }
             }
         }
@@ -145,8 +149,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         let connectedGameController = notification.object as! GCController
         if connectedGameController.microGamepad != nil || connectedGameController.extendedGamepad != nil {
             self.gameController = connectedGameController
+            gameControllerActive = true
             registerButtons()
-            controllerActive = true
         }
     }
     
@@ -154,12 +158,14 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         let disconnectedGameController = notification.object as! GCController
         if disconnectedGameController == self.gameController {
             self.gameController = nil
-            controllerActive = false
+            gameControllerActive = false
         }
     }
     
     func registerButtons() {
         if let extendedGamepad = self.gameController.extendedGamepad {
+            gameControllerType = "extended";
+
             extendedGamepad.dpad.valueChangedHandler = { (dpad: GCControllerDirectionPad, xValue: Float, yValue: Float) -> Void in
                 if self.menuActive {
                     if (xValue < -0.5) {
@@ -191,8 +197,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 } else {
                     if let level = self.level {
                         let dampFactor = 1 - abs(yValue) * 0.5;
-                        level.controllerXValue = CGFloat(yValue);
-                        level.controllerYValue = CGFloat(-xValue * dampFactor);
+                        level.gameControllerXValue = CGFloat(yValue);
+                        level.gameControllerYValue = CGFloat(-xValue * dampFactor);
                     }
                 }
             }
@@ -277,7 +283,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }
             
-            if #available(iOS 13.0, *) {
+            if #available(iOS 13.0, tvOS 13.0, *) {
                 extendedGamepad.buttonOptions?.pressedChangedHandler = { (buttonY: GCControllerButtonInput, value:Float, pressed:Bool) -> Void in
                     if pressed {
                         if self.gameActive {
@@ -294,6 +300,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }
         } else if let microGamepad = self.gameController.microGamepad {
+            gameControllerType = "micro";
             
             // microGamepad.allowsRotation = true
             microGamepad.reportsAbsoluteDpadValues = true
@@ -324,11 +331,11 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                     self.shoot()
                 }
             }
-        }
-        
-        if let motion = self.gameController?.motion {
-            motion.valueChangedHandler = { (motion: GCMotion) -> () in
-                self.updateMotion(x: CGFloat(motion.gravity.x), y: CGFloat(motion.gravity.y))
+            
+            if let motion = self.gameController?.motion {
+                motion.valueChangedHandler = { (motion: GCMotion) -> () in
+                    self.updateMotion(x: CGFloat(motion.gravity.x), y: CGFloat(motion.gravity.y))
+                }
             }
         }
     }
@@ -352,10 +359,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func updateMotion(x: CGFloat, y: CGFloat) {
         if let level = self.level, let tank = level.tank {
-            if !controllerActive {
-                tank.rotateTank(y)
-                tank.moveTank(x)
-            }
+            tank.rotateTank(y)
+            tank.moveTank(x)
         }
     }
     
@@ -433,7 +438,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             GameState.instance.levelPack = menu.levelPack
             GameState.instance.level = menu.level
             level = Level(fileNamed: "Level_\(GameState.instance.levelPack)_\(String(format: "%02d", GameState.instance.level))")
-            level?.controllerActive = self.controllerActive
             #if os(tvOS)
             level?.scaleMode = .aspectFill
             #else
@@ -442,8 +446,10 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             skView.presentScene(level!, transition: SKTransition.crossFade(withDuration: 1.0))
         }
         
-        level?.controllerXValue = 0;
-        level?.controllerYValue = 0;
+        level?.gameControllerActive = gameControllerActive
+        level?.gameControllerType = gameControllerType
+        level?.gameControllerXValue = 0;
+        level?.gameControllerYValue = 0;
         
         gameActive = true
     }
@@ -555,7 +561,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
                 #endif
             }
-        } else if self.gameActive && !controllerActive {
+        } else if self.gameActive && !gameControllerActive {
             if panGesture.state == .began && !(currentPanPos.x <= 1.5 * virtualPadSize.width && currentPanPos.y >= virtualPadSize.height) {
                 panPos = nil
             }
@@ -625,7 +631,7 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             let point = menu.convertPoint(fromView: tapPos)
             menu.setSelectionAtPoint(point)
             handleSelectTapped()
-        } else if gameActive && !controllerActive {
+        } else if gameActive && !gameControllerActive {
             if let level = self.level, let _ = level.tank {
                 if tapPos.x >= 1.25 * virtualPadSize.width && tapPos.x <= 2 * virtualPadSize.width && tapPos.y >= virtualPadSize.height {
                     showMenu()

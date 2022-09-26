@@ -438,6 +438,8 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             GameState.instance.levelPack = menu.levelPack
             GameState.instance.level = menu.level
             level = Level(fileNamed: "Level_\(GameState.instance.levelPack)_\(String(format: "%02d", GameState.instance.level))")
+            level?.gameControllerActive = gameControllerActive
+            level?.gameControllerType = gameControllerType
             #if os(tvOS)
             level?.scaleMode = .aspectFill
             #else
@@ -446,8 +448,6 @@ class GameViewController: UIViewController, UIGestureRecognizerDelegate {
             skView.presentScene(level!, transition: SKTransition.crossFade(withDuration: 1.0))
         }
         
-        level?.gameControllerActive = gameControllerActive
-        level?.gameControllerType = gameControllerType
         level?.gameControllerXValue = 0;
         level?.gameControllerYValue = 0;
         

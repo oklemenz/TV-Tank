@@ -21,20 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
-	<key>GCSupportedGameControllers</key>
-	<array>
-		<dict>
-			<key>ProfileName</key>
-			<string>MicroGamepad</string>
-		</dict>
-		<dict>
-			<key>ProfileName</key>
-			<string>ExtendedGamepad</string>
-		</dict>
-	</array>
-	<key>GCSupportsControllerUserInteraction</key>
-	<true/>
+	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -47,11 +34,6 @@
 	</array>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>arm64</string>
-		<string>accelerometer</string>
-	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeRight</string>
